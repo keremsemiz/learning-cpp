@@ -1,13 +1,24 @@
 {
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "C/C++ Runner: Debug Session",
-      "type": "lldb",
-      "request": "launch",
-      "args": [],
-      "cwd": "/Users/KeremNew/Desktop/Test/Cpp",
-      "program": "/Users/KeremNew/Desktop/Test/Cpp/build/Debug/outDebug"
-    }
-  ]
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "C/C++ Runner: Debug Session",
+            "type": "lldb",
+            "request": "launch",
+            "args": [],
+            "cwd": "/Users/KeremNew/Desktop/Test/Cpp",
+            "program": "/Users/KeremNew/Desktop/Test/Cpp/build/Debug/outDebug"
+        },
+        {
+            "name": "(Windows) Launch",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "enter program name, for example ${workspaceFolder}/a.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal"
+        }
+    ]
 }
