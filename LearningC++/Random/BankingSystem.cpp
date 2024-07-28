@@ -1,39 +1,26 @@
 #include <iostream>
-#include <vector>
 #include <string>
 
 class BankAccount {
-private:
+protected:
     std::string accountNumber;
-    std::string accountHolderName;
     double balance;
+    std::string accountHolderName;
 
 public:
     BankAccount(const std::string& accNum, const std::string& holderName, double initialBalance)
-        : accountNumber(accNum), accountHolderName(holderName), balance(initialBalance) {}
+        : accountNumber(accNum), balance(initialBalance), accountHolderName(holderName) {}
 
-    std::string getAccountNumber() const {
-        return accountNumber;
-    }
-
-    std::string getAccountHolderName() const {
-        return accountHolderName;
-    }
-
-    double getBalance() const {
-        return balance;
-    }
-
-    void deposit(double amount) {
+    virtual void deposit(double amount) {
         if (amount > 0) {
             balance += amount;
-            std::cout << "Deposited $" << amount << " to account " << accountNumber << std::endl;
+            std::cout << "Deposited $" << amount << " into account " << accountNumber << std::endl;
         } else {
             std::cout << "Invalid deposit amount.\n";
         }
     }
 
-    void withdraw(double amount) {
+    virtual void withdraw(double amount) {
         if (amount > 0 && balance >= amount) {
             balance -= amount;
             std::cout << "Withdrew $" << amount << " from account " << accountNumber << std::endl;
@@ -42,60 +29,72 @@ public:
         }
     }
 
-    void display() const {
+    virtual void displayDetails() const {
         std::cout << "Account Number: " << accountNumber
-                  << " | Holder: " << accountHolderName
-                  << " | Balance: $" << balance << std::endl;
+                  << "\nAccount Holder: " << accountHolderName
+                  << "\nBalance: $" << balance << std::endl;
+    }
+
+    virtual ~BankAccount() = default;
+};
+
+class SavingsAccount : public BankAccount {
+private:
+    double interestRate;
+
+public:
+    SavingsAccount(const std::string& accNum, const std::string& holderName, double initialBalance, double rate)
+        : BankAccount(accNum, holderName, initialBalance), interestRate(rate) {}
+
+    void applyInterest() {
+        double interest = balance * interestRate;
+        balance += interest;
+        std::cout << "Applied $" << interest << " interest to account " << accountNumber << std::endl;
+    }
+
+    void displayDetails() const override {
+        BankAccount::displayDetails();
+        std::cout << "Interest Rate: " << interestRate * 100 << "%" << std::endl;
     }
 };
 
-class Bank {
+class CheckingAccount : public BankAccount {
 private:
-    std::vector<BankAccount> accounts;
+    double overdraftLimit;
 
 public:
-    void addAccount(const std::string& accNum, const std::string& holderName, double initialBalance) {
-        accounts.emplace_back(accNum, holderName, initialBalance);
-    }
+    CheckingAccount(const std::string& accNum, const std::string& holderName, double initialBalance, double overdraft)
+        : BankAccount(accNum, holderName, initialBalance), overdraftLimit(overdraft) {}
 
-    void deleteAccount(const std::string& accNum) {
-        auto it = std::remove_if(accounts.begin(), accounts.end(), [&](const BankAccount& account) {
-            return account.getAccountNumber() == accNum;
-        });
-        if (it != accounts.end()) {
-            accounts.erase(it, accounts.end());
-            std::cout << "Deleted account " << accNum << std::endl;
+    void withdraw(double amount) override {
+        if (amount > 0 && (balance + overdraftLimit >= amount)) {
+            balance -= amount;
+            std::cout << "Withdrew $" << amount << " from account " << accountNumber << std::endl;
         } else {
-            std::cout << "Account not found.\n";
+            std::cout << "Overdraft limit exceeded or invalid amount.\n";
         }
     }
 
-    void displayAccounts() const {
-        for (const auto& account : accounts) {
-            account.display();
-        }
+    void displayDetails() const override {
+        BankAccount::displayDetails();
+        std::cout << "Overdraft Limit: $" << overdraftLimit << std::endl;
     }
 };
 
 int main() {
-    Bank bank;
-    bank.addAccount("1001", "Alice Johnson", 1500.0);
-    bank.addAccount("1002", "Bob Smith", 2000.0);
+    SavingsAccount savings("SA1001", "Alice Johnson", 5000.0, 0.02);
+    CheckingAccount checking("CA2001", "Bob Smith", 2000.0, 500.0);
 
-    std::cout << "Bank Accounts:\n";
-    bank.displayAccounts();
+    savings.displayDetails();
+    checking.displayDetails();
 
-    std::cout << "\nAlice deposits $500...\n";
-    bank.accounts[0].deposit(500);
-    bank.displayAccounts();
+    std::cout << "\nApplying interest to savings account...\n";
+    savings.applyInterest();
+    savings.displayDetails();
 
-    std::cout << "\nBob withdraws $1000...\n";
-    bank.accounts[1].withdraw(1000);
-    bank.displayAccounts();
-
-    std::cout << "\nDeleting Bob's account...\n";
-    bank.deleteAccount("1002");
-    bank.displayAccounts();
+    std::cout << "\nWithdrawing $3000 from checking account...\n";
+    checking.withdraw(3000);
+    checking.displayDetails();
 
     return 0;
 }
