@@ -57,3 +57,112 @@ private:
         pt->parent = pt_left;
     }
 
+    void fixViolation(Node*& root, Node*& pt) {
+        Node* parent_pt = nullptr;
+        Node* grand_parent_pt = nullptr;
+
+        while ((pt != root) && (pt->color != BLACK) && (pt->parent->color == RED)) {
+            parent_pt = pt->parent;
+            grand_parent_pt = pt->parent->parent;
+
+            if (parent_pt == grand_parent_pt->left) {
+                Node* uncle_pt = grand_parent_pt->right;
+
+                if (uncle_pt != nullptr && uncle_pt->color == RED) {
+                    grand_parent_pt->color = RED;
+                    parent_pt->color = BLACK;
+                    uncle_pt->color = BLACK;
+                    pt = grand_parent_pt;
+                } else {
+                    if (pt == parent_pt->right) {
+                        rotateLeft(root, parent_pt);
+                        pt = parent_pt;
+                        parent_pt = pt->parent;
+                    }
+
+                    rotateRight(root, grand_parent_pt);
+                    std::swap(parent_pt->color, grand_parent_pt->color);
+                    pt = parent_pt;
+                }
+            } else {
+                Node* uncle_pt = grand_parent_pt->left;
+
+                if (uncle_pt != nullptr && uncle_pt->color == RED) {
+                    grand_parent_pt->color = RED;
+                    parent_pt->color = BLACK;
+                    uncle_pt->color = BLACK;
+                    pt = grand_parent_pt;
+                } else {
+                    if (pt == parent_pt->left) {
+                        rotateRight(root, parent_pt);
+                        pt = parent_pt;
+                        parent_pt = pt->parent;
+                    }
+
+                    rotateLeft(root, grand_parent_pt);
+                    std::swap(parent_pt->color, grand_parent_pt->color);
+                    pt = parent_pt;
+                }
+            }
+        }
+
+        root->color = BLACK;
+    }
+
+    void inOrderHelper(Node* root) {
+        if (root == nullptr)
+            return;
+
+        inOrderHelper(root->left);
+        std::cout << root->data << " ";
+        inOrderHelper(root->right);
+    }
+
+public:
+    RedBlackTree() : root(nullptr) {}
+
+    void insert(int data) {
+        Node* pt = new Node(data);
+
+        root = bstInsert(root, pt);
+
+        fixViolation(root, pt);
+    }
+
+    Node* bstInsert(Node* root, Node* pt) {
+        if (root == nullptr)
+            return pt;
+
+        if (pt->data < root->data) {
+            root->left = bstInsert(root->left, pt);
+            root->left->parent = root;
+        } else if (pt->data > root->data) {
+            root->right = bstInsert(root->right, pt);
+            root->right->parent = root;
+        }
+
+        return root;
+    }
+
+    void inOrder() {
+        inOrderHelper(root);
+        std::cout << std::endl;
+    }
+};
+
+int main() {
+    RedBlackTree tree;
+
+    tree.insert(7);
+    tree.insert(6);
+    tree.insert(5);
+    tree.insert(4);
+    tree.insert(3);
+    tree.insert(2);
+    tree.insert(1);
+
+    std::cout << "In-order traversal of the constructed Red-Black tree is:\n";
+    tree.inOrder();
+
+    return 0;
+}
