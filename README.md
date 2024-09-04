@@ -2,6 +2,8 @@
 
 This repository contains various C++ algorithms that you can explore, run, and modify locally.
 
+![vscode screenshot broski](image.png)
+
 ## Prerequisites
 
 Before you can run these algorithms, ensure you have the following installed on your system:
